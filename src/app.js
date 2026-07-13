@@ -1,7 +1,7 @@
 const DEFAULT_OBSIDIAN_FOLDER = String.raw`C:\Users\myabe\OneDrive\Desktop\Obsidian Folder\Umbrella Parade\Sunoパ！記事`;
 const APPLICANT_AUDIO_BASE = String.raw`C:\Users\myabe\OneDrive\Desktop\ポン出し音源一覧\応募楽曲`;
 const GUEST_AUDIO_BASE = String.raw`C:\Users\myabe\OneDrive\Desktop\ポン出し音源一覧\ゲスト楽曲`;
-const STORAGE_KEY = "sunopa-work-start-pack-tool:v1";
+const STORAGE_KEY = "sunopa-work-start-pack-tool:v2";
 const MANY_APPLICANTS_THRESHOLD = 8;
 
 const songTypes = ["ゲスト曲", "かなめ🦐曲", "べるぼ☂曲", "応募者曲"];
@@ -50,13 +50,7 @@ const checklistItems = [
 ];
 
 const state = {
-  songs: [
-    createSong({ slot_no: "1", song_type: "ゲスト曲" }),
-    createSong({ slot_no: "2", song_type: "かなめ🦐曲" }),
-    createSong({ slot_no: "3", song_type: "べるぼ☂曲" }),
-    createSong({ slot_no: "4", song_type: "ゲスト曲" }),
-    createSong({ slot_no: "5", song_type: "応募者曲" }),
-  ],
+  songs: [],
 };
 
 const elements = {};
@@ -95,6 +89,8 @@ function cacheElements() {
 function bindEvents() {
   document.getElementById("addSong").addEventListener("click", addBlankSong);
   document.getElementById("addSongTop").addEventListener("click", addBlankSong);
+  document.getElementById("applyGuestTemplate").addEventListener("click", applyGuestTemplate);
+  document.getElementById("applyListenerTemplate").addEventListener("click", applyListenerTemplate);
   document.getElementById("importSongs").addEventListener("click", importSongsFromText);
   document.getElementById("generateOutput").addEventListener("click", () => generateAndRender("生成しました"));
   document.getElementById("generateTop").addEventListener("click", () => generateAndRender("生成しました"));
@@ -200,6 +196,33 @@ function addBlankSong() {
   generateAndRender("楽曲を追加しました");
 }
 
+function applyGuestTemplate() {
+  state.songs = [
+    createSong({ slot_no: "1", song_type: "ゲスト曲" }),
+    createSong({ slot_no: "2", song_type: "かなめ🦐曲" }),
+    createSong({ slot_no: "3", song_type: "べるぼ☂曲" }),
+    createSong({ slot_no: "4", song_type: "ゲスト曲" }),
+    createSong({ slot_no: "5", song_type: "応募者曲" }),
+  ];
+  renderSongs();
+  persistDraft();
+  generateAndRender("ゲスト回の曲枠を作りました。これは初期枠なので、必要な曲数に合わせて追加・削除してください");
+}
+
+function applyListenerTemplate() {
+  state.songs = [
+    createSong({ slot_no: "1", song_type: "応募者曲" }),
+    createSong({ slot_no: "2", song_type: "応募者曲" }),
+    createSong({ slot_no: "3", song_type: "応募者曲" }),
+    createSong({ slot_no: "4", song_type: "応募者曲" }),
+    createSong({ slot_no: "5", song_type: "かなめ🦐曲" }),
+    createSong({ slot_no: "6", song_type: "べるぼ☂曲" }),
+  ];
+  renderSongs();
+  persistDraft();
+  generateAndRender("リスナー回の曲枠を作りました。これは初期枠なので、応募曲数に合わせて追加・削除してください");
+}
+
 function nextSlotNumber() {
   const nums = state.songs.map((song) => Number(song.slot_no)).filter(Number.isFinite);
   return nums.length ? Math.max(...nums) + 1 : 1;
@@ -207,12 +230,12 @@ function nextSlotNumber() {
 
 function renderSongs() {
   elements.songList.innerHTML = "";
-  elements.songCount.textContent = `${state.songs.length}曲`;
+  elements.songCount.textContent = `${state.songs.length}曲（曲数は回ごとに可変）`;
 
   if (!state.songs.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
-    empty.textContent = "楽曲が未登録です。";
+    empty.textContent = "楽曲が未登録です。CSV/JSONを取り込むか、必要な曲数だけ追加してください。";
     elements.songList.append(empty);
     return;
   }

@@ -186,8 +186,13 @@
           </div>
           <div class="songs-toolbar">
             <p id="songCount">0曲</p>
-            <button class="secondary-button" id="addSong" type="button">＋ 楽曲を追加</button>
+            <div class="song-toolbar-actions">
+              <button class="secondary-button" id="applyGuestTemplate" type="button">ゲスト回の曲枠を作る</button>
+              <button class="secondary-button" id="applyListenerTemplate" type="button">リスナー回の曲枠を作る</button>
+              <button class="secondary-button" id="addSong" type="button">＋ 楽曲を追加</button>
+            </div>
           </div>
+          <p class="helper-text">テンプレは空の入力枠を置くだけです。曲数は固定せず、応募曲数や放送内容に合わせて追加・削除してください。</p>
           <div class="song-list" id="songList"></div>
         </section>
       </form>
