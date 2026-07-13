@@ -19,6 +19,54 @@
       </div>
     </header>
 
+    <section class="work-links-section" aria-labelledby="workLinksTitle">
+      <div class="work-links-heading">
+        <div>
+          <p class="eyebrow">Work Hub</p>
+          <h2 id="workLinksTitle">作業リンク</h2>
+          <p>作業で使う入口をまとめます。URLだけを保存し、認証情報やパスワードは入れないでください。</p>
+        </div>
+        <button class="secondary-button" id="resetWorkLinks" type="button">初期値に戻す</button>
+      </div>
+      <div class="work-links-grid">
+        <div class="work-link-card">
+          <label>
+            <span>Radio Meeting Scheduler</span>
+            <input data-work-link="meetingScheduler" type="url" />
+          </label>
+          <a class="link-button" data-work-link-open="meetingScheduler" href="#" target="_blank" rel="noopener noreferrer">開く</a>
+        </div>
+        <div class="work-link-card">
+          <label>
+            <span>Radio-Article-Studio</span>
+            <input data-work-link="articleStudio" type="url" />
+          </label>
+          <a class="link-button" data-work-link-open="articleStudio" href="#" target="_blank" rel="noopener noreferrer">開く</a>
+        </div>
+        <div class="work-link-card">
+          <label>
+            <span>Sunoパ！サイト</span>
+            <input data-work-link="sunopaSite" type="url" />
+          </label>
+          <a class="link-button" data-work-link-open="sunopaSite" href="#" target="_blank" rel="noopener noreferrer">開く</a>
+        </div>
+        <div class="work-link-card">
+          <label>
+            <span>ポン出しアプリ</span>
+            <input data-work-link="sePon" type="url" />
+          </label>
+          <a class="link-button" data-work-link-open="sePon" href="#" target="_blank" rel="noopener noreferrer">開く</a>
+        </div>
+        <div class="work-link-card">
+          <label>
+            <span>べるぼ配信ページ</span>
+            <input data-work-link="bellboStream" type="url" placeholder="必要に応じて配信元ページを入力" />
+          </label>
+          <a class="link-button" data-work-link-open="bellboStream" href="#" target="_blank" rel="noopener noreferrer">開く</a>
+        </div>
+      </div>
+    </section>
+
     <main class="workspace">
       <form class="input-column" id="packForm">
         <section class="form-section">
@@ -51,8 +99,8 @@
 
           <div class="field-grid two-columns">
             <label>
-              <span>stand.fm URL</span>
-              <input id="standFmUrl" name="standFmUrl" type="url" placeholder="https://stand.fm/..." />
+              <span>配信アーカイブURL</span>
+              <input id="standFmUrl" name="standFmUrl" type="url" placeholder="配信アーカイブのURL" />
             </label>
             <label>
               <span>スプレッドシートURLまたはCSVパス</span>

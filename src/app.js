@@ -2,6 +2,7 @@ const DEFAULT_OBSIDIAN_FOLDER = String.raw`C:\Users\myabe\OneDrive\Desktop\Obsid
 const APPLICANT_AUDIO_BASE = String.raw`C:\Users\myabe\OneDrive\Desktop\ポン出し音源一覧\応募楽曲`;
 const GUEST_AUDIO_BASE = String.raw`C:\Users\myabe\OneDrive\Desktop\ポン出し音源一覧\ゲスト楽曲`;
 const STORAGE_KEY = "sunopa-work-start-pack-tool:v2";
+const WORK_LINKS_STORAGE_KEY = "sunopa-work-start-pack-tool:work-links:v1";
 const MANY_APPLICANTS_THRESHOLD = 8;
 const activeSongFields = [
   "name",
@@ -13,6 +14,34 @@ const activeSongFields = [
   "thumbnail_source",
   "article_points",
   "x_url",
+];
+
+const defaultWorkLinks = [
+  {
+    key: "meetingScheduler",
+    label: "Radio Meeting Scheduler",
+    url: "https://umbrellaparade.github.io/Radio-Meeting-Scheduler/",
+  },
+  {
+    key: "articleStudio",
+    label: "Radio-Article-Studio",
+    url: "https://umbrellaparade.github.io/Radio-Article-Studio/",
+  },
+  {
+    key: "sunopaSite",
+    label: "Sunoパ！サイト",
+    url: "https://ai-music.noiseinmysoul.com/",
+  },
+  {
+    key: "sePon",
+    label: "ポン出しアプリ",
+    url: "https://umbrellaparade.github.io/SE_Pon/",
+  },
+  {
+    key: "bellboStream",
+    label: "べるぼ配信ページ",
+    url: "",
+  },
 ];
 
 const songTypes = ["ゲスト曲", "かなめ🦐曲", "べるぼ☂曲", "応募者曲"];
@@ -70,7 +99,9 @@ const elements = {};
 document.addEventListener("DOMContentLoaded", () => {
   cacheElements();
   restoreDraft();
+  restoreWorkLinks();
   bindEvents();
+  syncWorkLinkAnchors();
   syncAudioDestinations();
   renderSongs();
   refreshLivePreview();
@@ -111,6 +142,15 @@ function bindEvents() {
   document.getElementById("generateOutput").addEventListener("click", () => generateAndRender("生成しました"));
   document.getElementById("generateTop").addEventListener("click", () => generateAndRender("生成しました"));
   document.getElementById("copyOutput").addEventListener("click", copyOutput);
+  document.getElementById("resetWorkLinks").addEventListener("click", resetWorkLinks);
+
+  document.querySelectorAll("[data-work-link]").forEach((input) => {
+    input.addEventListener("input", () => {
+      persistWorkLinks();
+      syncWorkLinkAnchors();
+      refreshLivePreview();
+    });
+  });
 
   elements.packForm.addEventListener("input", (event) => {
     if (event.target.id === "broadcastName") {
@@ -408,6 +448,7 @@ function renderIssueBox(items) {
 
 function composePack(values = getFormValues(), songs = getActiveSongs(), confirmationItems = buildConfirmationItems(values, songs)) {
   const sePonOrder = buildSePonOrder(songs, values.articleType, values.applicantLimit);
+  const workLinks = getWorkLinks();
 
   return [
     "Sunoパ！の作業開始パックです。",
@@ -425,7 +466,7 @@ function composePack(values = getFormValues(), songs = getActiveSongs(), confirm
     "放送日:",
     values.broadcastDate || "未入力",
     "",
-    "stand.fm URL:",
+    "配信アーカイブURL:",
     values.standFmUrl || "未入力",
     "",
     "Radio-Article-StudioのCodexパック:",
@@ -433,6 +474,9 @@ function composePack(values = getFormValues(), songs = getActiveSongs(), confirm
     "",
     "スプレッドシートURLまたはCSVパス:",
     values.spreadsheetSource || "未入力",
+    "",
+    "作業リンク:",
+    ...workLinks.map((link) => `${link.label}: ${link.url || "未設定"}`),
     "",
     "WordPress:",
     `投稿先WordPressサイト: ${values.wordpressSite || "未入力"}`,
@@ -508,6 +552,81 @@ function getFormValues() {
 
 function readValue(id) {
   return document.getElementById(id).value.trim();
+}
+
+function getWorkLinks() {
+  return defaultWorkLinks.map((link) => {
+    const input = document.querySelector(`[data-work-link="${link.key}"]`);
+    return {
+      ...link,
+      url: normalizeUrl(input?.value || ""),
+    };
+  });
+}
+
+function restoreWorkLinks() {
+  let stored = {};
+  try {
+    stored = JSON.parse(localStorage.getItem(WORK_LINKS_STORAGE_KEY) || "{}") || {};
+  } catch {
+    stored = {};
+  }
+
+  defaultWorkLinks.forEach((link) => {
+    const input = document.querySelector(`[data-work-link="${link.key}"]`);
+    if (!input) return;
+    input.value = typeof stored[link.key] === "string" ? stored[link.key] : link.url;
+  });
+}
+
+function persistWorkLinks() {
+  const links = {};
+  defaultWorkLinks.forEach((link) => {
+    const input = document.querySelector(`[data-work-link="${link.key}"]`);
+    links[link.key] = normalizeUrl(input?.value || "");
+  });
+
+  try {
+    localStorage.setItem(WORK_LINKS_STORAGE_KEY, JSON.stringify(links));
+  } catch {
+    // Work links are optional convenience data.
+  }
+}
+
+function resetWorkLinks() {
+  defaultWorkLinks.forEach((link) => {
+    const input = document.querySelector(`[data-work-link="${link.key}"]`);
+    if (input) input.value = link.url;
+  });
+  persistWorkLinks();
+  syncWorkLinkAnchors();
+  refreshLivePreview();
+  showStatus("作業リンクを初期値に戻しました");
+}
+
+function syncWorkLinkAnchors() {
+  getWorkLinks().forEach((link) => {
+    const anchor = document.querySelector(`[data-work-link-open="${link.key}"]`);
+    if (!anchor) return;
+
+    if (isHttpUrl(link.url)) {
+      anchor.href = link.url;
+      anchor.removeAttribute("aria-disabled");
+      anchor.classList.remove("is-disabled");
+    } else {
+      anchor.removeAttribute("href");
+      anchor.setAttribute("aria-disabled", "true");
+      anchor.classList.add("is-disabled");
+    }
+  });
+}
+
+function normalizeUrl(url) {
+  return String(url || "").trim();
+}
+
+function isHttpUrl(url) {
+  return /^https?:\/\//i.test(normalizeUrl(url));
 }
 
 function getActiveSongs() {
@@ -657,7 +776,7 @@ function buildConfirmationItems(values, songs) {
   const missingNameSongs = songs.filter((song) => !song.name && !song.ai_artist).length;
 
   if (!values.broadcastName) items.push("放送回名が未入力です。");
-  if (!values.standFmUrl) items.push("stand.fm URLが未入力です。");
+  if (!values.standFmUrl) items.push("配信アーカイブURLが未入力です。");
   if (!values.rasPack) items.push("Radio-Article-StudioのCodexパックが未入力です。");
   if (!songs.length) items.push("楽曲データが未入力です。");
   if (missingTitleSongs) items.push(`曲名未入力が${missingTitleSongs}曲あります。`);

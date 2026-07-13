@@ -34,7 +34,7 @@ Radio-Article-Studioは、ゲスト名、応募者名、楽曲タイトル、ア
 放送回名:
 放送日:
 記事タイプ: ゲスト回 / リスナー応募楽曲オンエアー回
-stand.fm URL:
+配信アーカイブURL:
 Radio-Article-StudioのCodexパック:
 スプレッドシートURLまたはCSVパス:
 投稿先WordPressサイト:
@@ -108,7 +108,7 @@ C:\Users\myabe\OneDrive\Desktop\Obsidian Folder\Umbrella Parade\Sunoパ！記事
 
 放送回名:
 
-stand.fm URL:
+配信アーカイブURL:
 
 Radio-Article-StudioのCodexパック:
 
