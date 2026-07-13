@@ -2,6 +2,12 @@
 
 Sunoパ！の記事作成、音源整理、SE_Pon登録、サムネ制作、SNS導線をCodexに依頼するときの「作業開始パック」を生成するためのツール案です。
 
+GitHub repository:
+
+```text
+https://github.com/UmbrellaParade/sunopa-work-start-pack-tool
+```
+
 ## 目的
 
 毎回Codexへ渡す情報を固定化し、次の作業をスムーズに進める。
