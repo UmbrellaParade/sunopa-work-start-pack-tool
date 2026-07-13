@@ -9,12 +9,13 @@
   <body>
     <header class="app-header">
       <div>
-        <p class="eyebrow">Sunoパ！</p>
-        <h1>作業開始パックツール</h1>
+        <p class="eyebrow">Codex作業開始用</p>
+        <h1>Sunoパ！作業開始パックツール</h1>
+        <p class="app-description">Radio-Article-Studioの情報を、記事作成・音源整理・SE_Pon登録の依頼文に整えるツール</p>
       </div>
       <div class="header-actions">
         <button class="secondary-button" id="addSongTop" type="button">＋ 楽曲追加</button>
-        <button class="primary-button" id="generateTop" type="button">生成</button>
+        <button class="primary-button" id="generateTop" type="button">パック生成</button>
       </div>
     </header>
 
@@ -204,11 +205,19 @@
             <h2>生成テキスト</h2>
           </div>
           <div class="output-actions">
-            <button class="secondary-button" id="copyOutput" type="button">コピー</button>
-            <button class="primary-button" id="generateOutput" type="button">生成</button>
+            <button class="secondary-button" id="copyOutput" type="button" disabled>コピー</button>
+            <button class="primary-button" id="generateOutput" type="button">再生成</button>
           </div>
         </div>
-        <textarea id="outputText" spellcheck="false"></textarea>
+        <div class="issue-box" id="issueBox" hidden>
+          <h3>不足情報:</h3>
+          <ul id="issueList"></ul>
+        </div>
+        <div class="output-placeholder" id="outputPlaceholder">
+          <p>ここにCodexへ渡す作業開始パックが生成されます。</p>
+          <p>左側に放送回情報、Radio-Article-StudioのCodexパック、楽曲情報を入れて「パック生成」を押してください。</p>
+        </div>
+        <textarea id="outputText" spellcheck="false" hidden></textarea>
         <p class="status-line" id="statusLine" role="status"></p>
       </aside>
     </main>

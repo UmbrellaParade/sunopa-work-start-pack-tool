@@ -50,6 +50,7 @@ const checklistItems = [
 ];
 
 const state = {
+  hasGenerated: false,
   songs: [],
 };
 
@@ -61,7 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
   syncAudioDestinations();
   renderSongs();
-  generateAndRender();
+  refreshLivePreview();
+  renderOutputState();
 });
 
 function cacheElements() {
@@ -79,6 +81,9 @@ function cacheElements() {
     "songList",
     "songCount",
     "importText",
+    "issueBox",
+    "issueList",
+    "outputPlaceholder",
     "outputText",
     "statusLine",
   ].forEach((id) => {
@@ -107,12 +112,12 @@ function bindEvents() {
       setScopeChecked("sepon", event.target.value === "する");
     }
     persistDraft();
-    generateAndRender();
+    refreshLivePreview();
   });
 
   elements.packForm.addEventListener("change", (event) => {
     if (event.target.name === "articleType") {
-      generateAndRender();
+      refreshLivePreview();
     }
     if (event.target.id === "snsManga") {
       const enabled = event.target.value === "作る";
@@ -120,7 +125,7 @@ function bindEvents() {
       setScopeChecked("manga", enabled);
     }
     persistDraft();
-    generateAndRender();
+    refreshLivePreview();
   });
 
   elements.songList.addEventListener("input", (event) => {
@@ -138,7 +143,7 @@ function bindEvents() {
       renderSongs();
     }
     persistDraft();
-    generateAndRender();
+    refreshLivePreview();
   });
 
   elements.songList.addEventListener("click", (event) => {
@@ -161,7 +166,7 @@ function bindEvents() {
 
     renderSongs();
     persistDraft();
-    generateAndRender();
+    refreshLivePreview();
   });
 }
 
@@ -193,7 +198,8 @@ function addBlankSong() {
   );
   renderSongs();
   persistDraft();
-  generateAndRender("楽曲を追加しました");
+  refreshLivePreview();
+  showStatus("楽曲を追加しました");
 }
 
 function applyGuestTemplate() {
@@ -204,9 +210,11 @@ function applyGuestTemplate() {
     createSong({ slot_no: "4", song_type: "ゲスト曲" }),
     createSong({ slot_no: "5", song_type: "応募者曲" }),
   ];
+  setArticleType("ゲスト回");
   renderSongs();
   persistDraft();
-  generateAndRender("ゲスト回の曲枠を作りました。これは初期枠なので、必要な曲数に合わせて追加・削除してください");
+  refreshLivePreview();
+  showStatus("ゲスト回の曲枠を作りました。これは初期枠なので、必要な曲数に合わせて追加・削除してください");
 }
 
 function applyListenerTemplate() {
@@ -218,9 +226,11 @@ function applyListenerTemplate() {
     createSong({ slot_no: "5", song_type: "かなめ🦐曲" }),
     createSong({ slot_no: "6", song_type: "べるぼ☂曲" }),
   ];
+  setArticleType("リスナー応募楽曲オンエアー回");
   renderSongs();
   persistDraft();
-  generateAndRender("リスナー回の曲枠を作りました。これは初期枠なので、応募曲数に合わせて追加・削除してください");
+  refreshLivePreview();
+  showStatus("リスナー回の曲枠を作りました。これは初期枠なので、応募曲数に合わせて追加・削除してください");
 }
 
 function nextSlotNumber() {
@@ -331,6 +341,11 @@ function getArticleType() {
   return document.querySelector('input[name="articleType"]:checked')?.value || "ゲスト回";
 }
 
+function setArticleType(value) {
+  const radio = document.querySelector(`input[name="articleType"][value="${value}"]`);
+  if (radio) radio.checked = true;
+}
+
 function setScopeChecked(scope, checked) {
   const checkbox = document.querySelector(`[data-scope="${scope}"]`);
   if (checkbox) checkbox.checked = checked;
@@ -343,17 +358,44 @@ function syncAudioDestinations() {
 }
 
 function generateAndRender(status = "") {
-  const pack = composePack();
-  elements.outputText.value = pack;
-  renderSePonPreview();
+  state.hasGenerated = true;
+  refreshLivePreview();
+  renderOutputState();
   if (status) showStatus(status);
 }
 
-function composePack() {
+function refreshLivePreview() {
   const values = getFormValues();
   const songs = getActiveSongs();
-  const sePonOrder = buildSePonOrder(songs, values.articleType, values.applicantLimit);
   const confirmationItems = buildConfirmationItems(values, songs);
+
+  renderSePonPreview(values, songs);
+  renderIssueBox(confirmationItems);
+
+  if (state.hasGenerated) {
+    elements.outputText.value = composePack(values, songs, confirmationItems);
+  }
+}
+
+function renderOutputState() {
+  elements.outputPlaceholder.hidden = state.hasGenerated;
+  elements.outputText.hidden = !state.hasGenerated;
+  document.getElementById("copyOutput").disabled = !state.hasGenerated;
+}
+
+function renderIssueBox(items) {
+  elements.issueList.innerHTML = "";
+  elements.issueBox.hidden = !items.length;
+
+  items.forEach((item) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = item;
+    elements.issueList.append(listItem);
+  });
+}
+
+function composePack(values = getFormValues(), songs = getActiveSongs(), confirmationItems = buildConfirmationItems(values, songs)) {
+  const sePonOrder = buildSePonOrder(songs, values.articleType, values.applicantLimit);
 
   return [
     "Sunoパ！の作業開始パックです。",
@@ -459,11 +501,7 @@ function readValue(id) {
 function getActiveSongs() {
   return state.songs
     .map((song) => normalizeSong(song))
-    .filter((song) =>
-      Object.entries(song).some(
-        ([key, value]) => !["id", "slot_no", "song_type"].includes(key) && String(value || "").trim(),
-      ),
-    );
+    .filter((song) => Object.entries(song).some(([key, value]) => key !== "id" && String(value || "").trim()));
 }
 
 function normalizeSong(song) {
@@ -536,9 +574,7 @@ function sortSongsBySlot(songs) {
   });
 }
 
-function renderSePonPreview() {
-  const values = getFormValues();
-  const songs = getActiveSongs();
+function renderSePonPreview(values = getFormValues(), songs = getActiveSongs()) {
   const order = buildSePonOrder(songs, values.articleType, values.applicantLimit);
 
   elements.sePonPreview.innerHTML = "";
@@ -597,11 +633,15 @@ function buildConfirmationItems(values, songs) {
   const applicantCount = songs.filter((song) => song.song_type === "応募者曲").length;
   const missingUrlSongs = songs.filter((song) => !song.song_url);
   const missingAudioSongs = songs.filter((song) => !song.audio_path);
+  const missingTitleSongs = songs.filter((song) => !song.title).length;
+  const missingNameSongs = songs.filter((song) => !song.name && !song.ai_artist).length;
 
   if (!values.broadcastName) items.push("放送回名が未入力です。");
   if (!values.standFmUrl) items.push("stand.fm URLが未入力です。");
   if (!values.rasPack) items.push("Radio-Article-StudioのCodexパックが未入力です。");
   if (!songs.length) items.push("楽曲データが未入力です。");
+  if (missingTitleSongs) items.push(`曲名未入力が${missingTitleSongs}曲あります。`);
+  if (missingNameSongs) items.push(`名前またはAIアーティスト名が未入力の曲が${missingNameSongs}曲あります。`);
   if (values.audioOrganize === "する" && !values.audioSource) items.push("音源ファイルの場所が未入力です。");
   if (missingUrlSongs.length) items.push(`楽曲URL未入力が${missingUrlSongs.length}曲あります。`);
   if (values.audioOrganize === "する" && missingAudioSongs.length) items.push(`音源ファイルパス未入力が${missingAudioSongs.length}曲あります。`);
@@ -634,7 +674,8 @@ function importSongsFromText() {
     state.songs = parsed;
     renderSongs();
     persistDraft();
-    generateAndRender(`${parsed.length}曲を取り込みました`);
+    refreshLivePreview();
+    showStatus(`${parsed.length}曲を取り込みました`);
   } catch (error) {
     showStatus(`取り込みに失敗しました: ${error.message}`);
   }
@@ -749,15 +790,19 @@ function normalizeHeader(header) {
 }
 
 async function copyOutput() {
+  if (!state.hasGenerated) {
+    showStatus("先にパック生成を押してください");
+    return;
+  }
+
   const text = elements.outputText.value;
+  showStatus("コピーしました");
   try {
     await navigator.clipboard.writeText(text);
-    showStatus("コピーしました");
   } catch {
     elements.outputText.focus();
     elements.outputText.select();
     document.execCommand("copy");
-    showStatus("コピーしました");
   }
 }
 
