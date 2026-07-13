@@ -1,45 +1,31 @@
 # Sunoパ！作業開始パックツール
 
-Sunoパ！の記事作成、音源整理、SE_Pon登録、サムネ制作、SNS導線をCodexに依頼するときの「作業開始パック」を生成するためのツール案です。
+Sunoパ！の記事作成、音源整理、SE_Pon登録、サムネ制作、SNS導線をCodexへ依頼するときに使う「作業開始パック」を生成する静的Webツールです。
 
-GitHub repository:
+## できること
 
-```text
-https://github.com/UmbrellaParade/sunopa-work-start-pack-tool
-```
+- 放送回名、放送日、記事タイプ、stand.fm URL、WordPress方針を整理
+- Radio-Article-StudioのCodexパックやCSV/JSONの楽曲情報を貼り付け
+- 音源保存先を放送回名から自動生成
+- SE_Pon登録順をプレビュー
+- 楽曲紹介サムネ制作指示を生成
+- WordPress、SNS、告知漫画の作業範囲を指定
+- Codexへ渡す作業開始パックと作業後チェックリストを生成
+- 生成テキストをクリップボードへコピー
 
-## 目的
+## 使い方
 
-毎回Codexへ渡す情報を固定化し、次の作業をスムーズに進める。
-
-- ゲスト回アーカイブ記事
-- リスナー応募楽曲オンエアーアーカイブ記事
-- フォーム音源の保存
-- SE_Ponの `🎵 放送「曲・BGM」` 登録
-- 全曲リピートON確認
-- 楽曲紹介用16:9サムネの制作指示
-- WordPress下書き、SNS投稿文、告知漫画案
-
-## まず作るもの
-
-最初は完全自動化ではなく、Codexへ渡すテキスト生成を優先します。
+`index.html` をブラウザで開いてください。ビルドやインストールは不要です。
 
 ```text
-1. 放送回を選ぶ
-2. 記事タイプを選ぶ
-3. 作業範囲をチェックする
-4. 音源保存先を表示する
-5. SE_Pon登録順を表示する
-6. 作業後チェックリストを表示する
-7. Codex作業開始パックをコピーする
+index.html
+src/
+  app.js
+  styles.css
+docs/
+  design-instructions.md
 ```
 
-## 関連資料
+## 開発メモ
 
-詳細な設計指示は [docs/design-instructions.md](docs/design-instructions.md) を参照。
-
-元の運用資料はローカルObsidianフォルダーにあります。
-
-```text
-C:\Users\myabe\OneDrive\Desktop\Obsidian Folder\Umbrella Parade\Sunoパ！記事
-```
+最初の実装は完全自動化よりも、Codexへ渡すテキスト生成を優先しています。音源保存やSE_Pon登録は、このツールが出す保存先と登録順をもとに、Codexが別作業として実行できる状態にします。

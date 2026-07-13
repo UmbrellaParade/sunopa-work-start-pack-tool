@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sunoパ！作業開始パックツール</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Sunoパ！</p>
+        <h1>作業開始パックツール</h1>
+      </div>
+      <div class="header-actions">
+        <button class="secondary-button" id="addSongTop" type="button">＋ 楽曲追加</button>
+        <button class="primary-button" id="generateTop" type="button">生成</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <form class="input-column" id="packForm">
+        <section class="form-section">
+          <div class="section-title">
+            <span class="step-mark">1</span>
+            <h2>基本情報</h2>
+          </div>
+          <div class="field-grid two-columns">
+            <label>
+              <span>放送回名</span>
+              <input id="broadcastName" name="broadcastName" type="text" placeholder="例: 第12回 ゲスト〇〇さん回" />
+            </label>
+            <label>
+              <span>放送日</span>
+              <input id="broadcastDate" name="broadcastDate" type="date" />
+            </label>
+          </div>
+
+          <fieldset class="segmented-field">
+            <legend>記事タイプ</legend>
+            <label>
+              <input type="radio" name="articleType" value="ゲスト回" checked />
+              <span>ゲスト回</span>
+            </label>
+            <label>
+              <input type="radio" name="articleType" value="リスナー応募楽曲オンエアー回" />
+              <span>リスナー応募楽曲オンエアー回</span>
+            </label>
+          </fieldset>
+
+          <div class="field-grid two-columns">
+            <label>
+              <span>stand.fm URL</span>
+              <input id="standFmUrl" name="standFmUrl" type="url" placeholder="https://stand.fm/..." />
+            </label>
+            <label>
+              <span>スプレッドシートURLまたはCSVパス</span>
+              <input id="spreadsheetSource" name="spreadsheetSource" type="text" placeholder="URLまたはローカルパス" />
+            </label>
+          </div>
+
+          <label>
+            <span>Radio-Article-StudioのCodexパック</span>
+            <textarea id="rasPack" name="rasPack" rows="5" placeholder="Radio-Article-Studioから出した情報を貼り付け"></textarea>
+          </label>
+
+          <div class="field-grid three-columns">
+            <label>
+              <span>投稿先WordPressサイト</span>
+              <input id="wordpressSite" name="wordpressSite" type="text" placeholder="サイト名またはURL" />
+            </label>
+            <label>
+              <span>WordPress方針</span>
+              <select id="wordpressPolicy" name="wordpressPolicy">
+                <option>下書きまで</option>
+                <option>確認後公開</option>
+                <option>すぐ公開</option>
+              </select>
+            </label>
+            <label>
+              <span>SNS・漫画</span>
+              <select id="snsManga" name="snsManga">
+                <option>作る</option>
+                <option>作らない</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-title">
+            <span class="step-mark">2</span>
+            <h2>作業範囲</h2>
+          </div>
+          <div class="checkbox-grid">
+            <label><input type="checkbox" data-scope="article" data-label="記事作成" checked /> 記事作成</label>
+            <label><input type="checkbox" data-scope="wordpress" data-label="WordPress下書き" checked /> WordPress下書き</label>
+            <label><input type="checkbox" data-scope="audio" data-label="音源整理" checked /> 音源整理</label>
+            <label><input type="checkbox" data-scope="sepon" data-label="SE_Pon登録" checked /> SE_Pon登録</label>
+            <label><input type="checkbox" data-scope="sns" data-label="SNS投稿文" checked /> SNS投稿文</label>
+            <label><input type="checkbox" data-scope="manga" data-label="告知漫画案" checked /> 告知漫画案</label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-title">
+            <span class="step-mark">3</span>
+            <h2>音源整理</h2>
+          </div>
+          <div class="field-grid three-columns">
+            <label>
+              <span>音源整理</span>
+              <select id="audioOrganize" name="audioOrganize">
+                <option>する</option>
+                <option>しない</option>
+              </select>
+            </label>
+            <label>
+              <span>音源種別</span>
+              <select id="audioType" name="audioType">
+                <option>両方</option>
+                <option>応募楽曲</option>
+                <option>ゲスト楽曲</option>
+              </select>
+            </label>
+            <label>
+              <span>音源ファイルの場所</span>
+              <input id="audioSource" name="audioSource" type="text" placeholder="フォルダーまたはファイルパス" />
+            </label>
+          </div>
+          <div class="path-grid">
+            <label>
+              <span>応募楽曲 保存先</span>
+              <input id="applicantSavePath" name="applicantSavePath" type="text" readonly />
+            </label>
+            <label>
+              <span>ゲスト楽曲 保存先</span>
+              <input id="guestSavePath" name="guestSavePath" type="text" readonly />
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-title">
+            <span class="step-mark">4</span>
+            <h2>SE_Pon</h2>
+          </div>
+          <div class="field-grid three-columns">
+            <label>
+              <span>SE_Pon登録</span>
+              <select id="sePonRegister" name="sePonRegister">
+                <option>する</option>
+                <option>しない</option>
+              </select>
+            </label>
+            <label>
+              <span>登録先</span>
+              <input id="sePonTarget" name="sePonTarget" type="text" value="🎵 放送「曲・BGM」" />
+            </label>
+            <label>
+              <span>応募者曲 登録ここまで</span>
+              <input id="applicantLimit" name="applicantLimit" min="1" type="number" placeholder="任意" />
+            </label>
+          </div>
+          <label class="toggle-line">
+            <input id="repeatAll" name="repeatAll" type="checkbox" checked />
+            全曲リピートON
+          </label>
+          <div class="preview-box">
+            <h3>SE_Pon登録順プレビュー</h3>
+            <ol id="sePonPreview"></ol>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-title">
+            <span class="step-mark">5</span>
+            <h2>楽曲一覧</h2>
+          </div>
+          <div class="import-area">
+            <label>
+              <span>CSV/JSON貼り付け</span>
+              <textarea id="importText" rows="4" placeholder="CSVヘッダー例: slot_no,曲の種別,名前,曲名,AIアーティスト名,楽曲URL"></textarea>
+            </label>
+            <button class="secondary-button" id="importSongs" type="button">取り込み</button>
+          </div>
+          <div class="songs-toolbar">
+            <p id="songCount">0曲</p>
+            <button class="secondary-button" id="addSong" type="button">＋ 楽曲を追加</button>
+          </div>
+          <div class="song-list" id="songList"></div>
+        </section>
+      </form>
+
+      <aside class="output-column" aria-label="生成結果">
+        <div class="output-header">
+          <div>
+            <p class="eyebrow">Codex Pack</p>
+            <h2>生成テキスト</h2>
+          </div>
+          <div class="output-actions">
+            <button class="secondary-button" id="copyOutput" type="button">コピー</button>
+            <button class="primary-button" id="generateOutput" type="button">生成</button>
+          </div>
+        </div>
+        <textarea id="outputText" spellcheck="false"></textarea>
+        <p class="status-line" id="statusLine" role="status"></p>
+      </aside>
+    </main>
+
+    <script src="src/app.js"></script>
+  </body>
+</html>
